@@ -6,61 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.8",
     "@dnd-kit/modifiers": "^6.0.1",
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.1",
-    "framer-motion": "^10.16.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "zustand": "^4.4.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.4",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.9"
-  "version": "1.0.0",
-  "description": "Core engine components for a card game simulator",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test \"dist/tests/**/*.js\""
-  },
-  "keywords": [
-    "card-game",
-    "simulator",
-    "engine"
-  ],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
-  "private": true,
-  "scripts": {
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "zustand": "^4.5.2"
-  },
-  "devDependencies": {
-    "typescript": "^5.4.5",
-    "vitest": "^0.34.6"
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
-  },
-  "dependencies": {
-    "@dnd-kit/core": "^6.0.8",
-    "@dnd-kit/sortable": "^7.0.2",
     "framer-motion": "^11.0.17",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -77,6 +30,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "vite": "^5.0.10",
+    "vitest": "^0.34.6"
   }
 }
