@@ -20,6 +20,18 @@
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
     "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["dist", "node_modules"]
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
