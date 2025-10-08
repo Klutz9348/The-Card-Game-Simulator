@@ -8,10 +8,9 @@ export interface ZoneViewProps {
   cards: CardModel[];
   cardSize: CardSize;
   onFlipCard: (cardId: string) => void;
-  dragScale?: number;
 }
 
-export const ZoneView = ({ zone, cards, cardSize, onFlipCard, dragScale = 1 }: ZoneViewProps) => {
+export const ZoneView = ({ zone, cards, cardSize, onFlipCard }: ZoneViewProps) => {
   const { isOver, setNodeRef } = useDroppable({
     id: zone.id,
     data: {
@@ -76,7 +75,6 @@ export const ZoneView = ({ zone, cards, cardSize, onFlipCard, dragScale = 1 }: Z
                 position: 'absolute',
                 ...positionStyle
               }}
-              dragScale={dragScale}
               onFlip={onFlipCard}
             />
           );

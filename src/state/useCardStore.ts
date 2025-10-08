@@ -10,6 +10,7 @@ export interface CardStoreState {
   upsertCards: (cards: CardState[]) => void;
   flipCard: (cardId: string) => CardState | undefined;
   setCardZone: (cardId: string, zoneId: string | null) => CardState | undefined;
+  removeCards: (cardIds: string[]) => void;
   removeCard: (cardId: string) => void;
 }
 
@@ -58,15 +59,28 @@ export const useCardStore = create<CardStoreState>()(
       }));
       return get().cards[cardId];
     },
-    removeCard: (cardId) =>
+    removeCards: (cardIds) => {
+      if (!cardIds.length) {
+        return;
+      }
       set((state) => {
-        if (!state.cards[cardId]) {
+        const nextCards = { ...state.cards };
+        let changed = false;
+        cardIds.forEach((cardId) => {
+          if (nextCards[cardId]) {
+            delete nextCards[cardId];
+            changed = true;
+          }
+        });
+        if (!changed) {
           return state;
         }
-        const nextCards = { ...state.cards };
-        delete nextCards[cardId];
         return { cards: nextCards };
-      })
+      });
+    },
+    removeCard: (cardId) => {
+      get().removeCards([cardId]);
+    }
   }))
 );
 

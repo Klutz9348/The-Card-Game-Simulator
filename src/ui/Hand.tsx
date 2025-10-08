@@ -84,7 +84,6 @@ export const Hand = ({ zone, cards, cardSize, onFlipCard }: HandProps) => {
               card={card}
               cardSize={cardSize}
               style={{}}
-              dragScale={1}
               onFlip={onFlipCard}
             />
           </motion.div>

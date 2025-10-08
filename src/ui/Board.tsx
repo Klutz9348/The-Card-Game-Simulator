@@ -2,6 +2,7 @@ import {
   DndContext,
   DragCancelEvent,
   DragEndEvent,
+  DragOverlay,
   DragOverEvent,
   DragStartEvent
 } from '@dnd-kit/core';
@@ -10,7 +11,7 @@ import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'reac
 import { snap, clampToZone } from '../lib/Table';
 import { useBoardStore } from '../state/useBoardStore';
 import type { CardModel, Vector2, ZoneModel } from '../state/types';
-import type { CardSize } from './CardView';
+import { CardView, type CardSize } from './CardView';
 import { Hand } from './Hand';
 import { ZoneView } from './ZoneView';
 
@@ -255,7 +256,6 @@ export const Board = ({
           zone={zone}
           cards={zoneCards}
           cardSize={cardSize}
-          dragScale={scale}
           onFlipCard={flipCard}
         />
       );

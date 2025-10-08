@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Board } from '../ui/Board';
 import type { CardModel, ZoneModel } from '../state/types';
-import { useGameStore } from '../state/useGameStore';
+import { useBoardStore } from '../state/useBoardStore';
 
 const CARD_WIDTH = 120;
 const CARD_HEIGHT = 168;
@@ -12,7 +12,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
     name: 'Table',
     type: 'board',
     position: { x: 0, y: 0 },
-    size: { width: 1600, height: 900 },
+    size: { width: 1920, height: 1080 },
     cards: ['card-1', 'card-2']
   };
 
@@ -20,7 +20,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
     id: 'zone-hand',
     name: 'Player Hand',
     type: 'hand',
-    position: { x: 80, y: 940 },
+    position: { x: 0, y: 0 },
     size: { width: 960, height: 220 },
     cards: ['card-3', 'card-4', 'card-5']
   };
@@ -29,7 +29,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
     id: 'zone-discard',
     name: 'Discard',
     type: 'discard',
-    position: { x: 1320, y: 940 },
+    position: { x: 80, y: 720 },
     size: { width: 200, height: 220 },
     cards: []
   };
@@ -86,7 +86,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
 };
 
 export const BoardExample = () => {
-  const initialize = useGameStore((state) => state.actions.ensureExampleState);
+  const initialize = useBoardStore((state) => state.actions.ensureExampleState);
 
   useEffect(() => {
     initialize(seedExampleState);

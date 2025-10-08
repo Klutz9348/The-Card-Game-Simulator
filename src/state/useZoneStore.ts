@@ -13,6 +13,7 @@ export interface ZoneStoreState {
   moveCardToZone: (cardId: string, targetZoneId: string | null) => void;
   drawCard: (zoneId: string, destinationZoneId?: string) => CardState | undefined;
   shuffleDeck: (zoneId: string, random?: () => number) => void;
+  removeZones: (zoneIds: string[]) => void;
 }
 
 const initialState: ZoneDictionary = {};
@@ -108,6 +109,42 @@ export const useZoneStore = create<ZoneStoreState>()(
           [zoneId]: updatedZone
         }
       }));
+    },
+    removeZones: (zoneIds) => {
+      if (!zoneIds.length) {
+        return;
+      }
+
+      const cardIdsToClear: string[] = [];
+
+      set((state) => {
+        const nextZones = { ...state.zones };
+        let changed = false;
+
+        zoneIds.forEach((zoneId) => {
+          const zone = nextZones[zoneId];
+          if (!zone) {
+            return;
+          }
+          cardIdsToClear.push(...zone.cards);
+          delete nextZones[zoneId];
+          changed = true;
+        });
+
+        if (!changed) {
+          return state;
+        }
+
+        return { zones: nextZones };
+      });
+
+      if (cardIdsToClear.length) {
+        const uniqueCardIds = Array.from(new Set(cardIdsToClear));
+        const cardStore = useCardStore.getState();
+        uniqueCardIds.forEach((cardId) => {
+          cardStore.setCardZone(cardId, null);
+        });
+      }
     }
   }))
 );

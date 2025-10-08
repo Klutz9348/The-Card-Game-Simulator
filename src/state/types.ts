@@ -37,16 +37,16 @@ export interface SnapPreview {
   position: Vector2;
 }
 
-export interface GameStoreState {
+export interface BoardStoreState {
   cards: Record<string, CardModel>;
   zones: Record<string, ZoneModel>;
   draggingCardId: string | null;
   hoveringZoneId: string | null;
   snapPreview: SnapPreview | null;
-  actions: GameStoreActions;
+  actions: BoardStoreActions;
 }
 
-export interface GameStoreActions {
+export interface BoardStoreActions {
   upsertZones: (zones: ZoneModel[]) => void;
   upsertCards: (cards: CardModel[]) => void;
   moveCard: (cardId: string, zoneId: string, position: Vector2) => void;
