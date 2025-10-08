@@ -2,16 +2,15 @@ import {
   DndContext,
   DragCancelEvent,
   DragEndEvent,
-  DragOverlay,
   DragOverEvent,
   DragStartEvent
 } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
 import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { snap, clampToZone } from '../lib/Table';
-import { useGameStore } from '../state/useGameStore';
+import { useBoardStore } from '../state/useBoardStore';
 import type { CardModel, Vector2, ZoneModel } from '../state/types';
-import { CardView, type CardSize } from './CardView';
+import type { CardSize } from './CardView';
 import { Hand } from './Hand';
 import { ZoneView } from './ZoneView';
 
@@ -29,11 +28,9 @@ export const Board = ({
   gridSize = 40,
   background = defaultBackground
 }: BoardProps) => {
-  const zones = useGameStore((state) => state.zones);
-  const cards = useGameStore((state) => state.cards);
-  const draggingCardId = useGameStore((state) => state.draggingCardId);
-  const snapPreview = useGameStore((state) => state.snapPreview);
-  const { setDraggingCard, setHoveringZone, setSnapPreview, moveCard, flipCard } = useGameStore(
+  const zones = useBoardStore((state) => state.zones);
+  const cards = useBoardStore((state) => state.cards);
+  const { setDraggingCard, setHoveringZone, moveCard, flipCard } = useBoardStore(
     (state) => state.actions
   );
 
@@ -43,9 +40,8 @@ export const Board = ({
   const lastPointerPosition = useRef<Vector2 | null>(null);
 
   const zoneEntries = useMemo(() => Object.values(zones), [zones]);
-  const previewZone = snapPreview ? zones[snapPreview.zoneId] : undefined;
-
-  const draggingCard = draggingCardId ? cards[draggingCardId] : undefined;
+  const handZones = useMemo(() => zoneEntries.filter((zone) => zone.type === 'hand'), [zoneEntries]);
+  const boardZones = useMemo(() => zoneEntries.filter((zone) => zone.type !== 'hand'), [zoneEntries]);
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
@@ -62,42 +58,49 @@ export const Board = ({
       setHoveringZone(overZoneId ?? null);
 
       if (!overZoneId) {
-        setSnapPreview(null);
         return;
       }
 
       const zone = zones[overZoneId];
-      const translatedRect = event.active.rect.current.translated;
+      if (!zone) {
+        return;
+      }
+
+      const initialRect = event.active.rect.current.initial;
+      if (!initialRect) {
+        return;
+      }
+
+      const currentLeft = initialRect.left + event.delta.x;
+      const currentTop = initialRect.top + event.delta.y;
+
+      if (zone.type === 'hand') {
+        return;
+      }
+
       const overRect = event.over?.rect;
-      if (!zone || !translatedRect || !overRect) {
-        setSnapPreview(null);
+      if (!overRect) {
         return;
       }
 
       const positionWithinZone = {
-        x: (translatedRect.left - overRect.left) / scale,
-        y: (translatedRect.top - overRect.top) / scale
+        x: (currentLeft - overRect.left) / scale,
+        y: (currentTop - overRect.top) / scale
       };
 
       const snapped = snap(positionWithinZone, { gridSize });
       const clamped = clampToZone(snapped, zone.size, cardSize);
 
-      setSnapPreview({
-        cardId,
-        zoneId: overZoneId,
-        position: clamped
-      });
     },
-    [cardSize, gridSize, scale, setHoveringZone, setSnapPreview, zones]
+    [cardSize, gridSize, scale, setHoveringZone, zones]
   );
 
   const handleDragCancel = useCallback(
     (_event: DragCancelEvent) => {
       setDraggingCard(null);
       setHoveringZone(null);
-      setSnapPreview(null);
     },
-    [setDraggingCard, setHoveringZone, setSnapPreview]
+    [setDraggingCard, setHoveringZone]
   );
 
   const handleDragEnd = useCallback(
@@ -111,17 +114,37 @@ export const Board = ({
       }
 
       const zone = zones[overZoneId];
-      const translatedRect = event.active.rect.current.translated;
       const overRect = event.over?.rect;
 
-      if (!zone || !translatedRect || !overRect) {
+      if (!zone || !overRect) {
         handleDragCancel(event);
         return;
       }
 
+      const initialRect = event.active.rect.current.initial;
+      if (!initialRect) {
+        handleDragCancel(event);
+        return;
+      }
+
+      const currentLeft = initialRect.left + event.delta.x;
+      const currentTop = initialRect.top + event.delta.y;
+
+      if (zone.type === 'hand') {
+        moveCard(
+          cardId,
+          overZoneId,
+          {
+            x: (zone.size.width - cardSize.width) / 2,
+            y: zone.size.height - cardSize.height - 16
+          }
+        );
+        return;
+      }
+
       const positionWithinZone = {
-        x: (translatedRect.left - overRect.left) / scale,
-        y: (translatedRect.top - overRect.top) / scale
+        x: (currentLeft - overRect.left) / scale,
+        y: (currentTop - overRect.top) / scale
       };
 
       const snapped = snap(positionWithinZone, { gridSize });
@@ -178,17 +201,38 @@ export const Board = ({
       transformOrigin: '0 0',
       background,
       backgroundSize: 'cover',
-      borderRadius: 32,
-      boxShadow: '0 30px 70px rgba(0, 0, 0, 0.45)',
+      borderRadius: 0,
+      boxShadow: '0 30px 80px rgba(0, 0, 0, 0.55)',
       overflow: 'visible'
     }),
     [background, offset.x, offset.y, scale]
   );
 
-  const boardGrid = useMemo<CSSProperties>(
+  const GRID_EXTENT = 4096;
+
+  const gridOverlayStyle = useMemo<CSSProperties>(
     () => ({
-      backgroundImage: `linear-gradient(transparent calc(${gridSize}px - 1px), rgba(255, 255, 255, 0.04) calc(${gridSize}px)), linear-gradient(90deg, transparent calc(${gridSize}px - 1px), rgba(255, 255, 255, 0.04) calc(${gridSize}px))`,
-      backgroundSize: `${gridSize}px ${gridSize}px`
+      position: 'absolute',
+      top: -GRID_EXTENT,
+      right: -GRID_EXTENT,
+      bottom: -GRID_EXTENT,
+      left: -GRID_EXTENT,
+      backgroundColor: 'rgba(8, 14, 24, 0.9)',
+      backgroundImage: `
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px)
+      `,
+      backgroundSize: `
+        ${gridSize}px ${gridSize}px,
+        ${gridSize}px ${gridSize}px,
+        ${gridSize * 5}px ${gridSize * 5}px,
+        ${gridSize * 5}px ${gridSize * 5}px
+      `,
+      backgroundPosition: '0 0',
+      opacity: 0.9,
+      pointerEvents: 'none'
     }),
     [gridSize]
   );
@@ -211,11 +255,12 @@ export const Board = ({
           zone={zone}
           cards={zoneCards}
           cardSize={cardSize}
+          dragScale={scale}
           onFlipCard={flipCard}
         />
       );
     },
-    [cardSize, cards, flipCard]
+    [cardSize, cards, flipCard, scale]
   );
 
   return (
@@ -223,7 +268,7 @@ export const Board = ({
       style={{
         position: 'relative',
         width: '100%',
-        height: '100%',
+        height: '100vh',
         backgroundColor: '#05070c',
         overflow: 'hidden'
       }}
@@ -278,12 +323,11 @@ export const Board = ({
           className="board-surface"
           style={{
             position: 'absolute',
-            inset: 32,
-            borderRadius: 32,
+            inset: 0,
+            borderRadius: 0,
             overflow: 'hidden',
             cursor: isPanning ? 'grabbing' : 'default',
-            background: 'rgba(4,9,16,0.9)',
-            boxShadow: '0 40px 80px rgba(0,0,0,0.55)'
+            background: 'rgba(4,9,16,0.85)'
           }}
           onWheel={handleWheel}
           onPointerDown={handlePointerDown}
@@ -298,38 +342,19 @@ export const Board = ({
               background: 'rgba(5, 11, 22, 0.7)'
             }}
           />
-          <motion.div className="board-content" style={{ ...boardContentStyle, ...boardGrid }}>
-            {snapPreview && previewZone ? (
-              <motion.div
-                layoutId="snap-preview"
-                style={{
-                  position: 'absolute',
-                  pointerEvents: 'none',
-                  left: previewZone.position.x + snapPreview.position.x,
-                  top: previewZone.position.y + snapPreview.position.y,
-                  width: cardSize.width,
-                  height: cardSize.height,
-                  borderRadius: 12,
-                  border: '2px solid rgba(90, 245, 198, 0.65)',
-                  background: 'rgba(90, 245, 198, 0.15)',
-                  boxShadow: '0 0 0 3px rgba(90, 245, 198, 0.15)'
-                }}
-              />
-            ) : null}
-            {zoneEntries.map((zone) => renderZone(zone))}
+          <motion.div className="board-content" style={boardContentStyle}>
+            <div style={gridOverlayStyle} />
+            {boardZones.map((zone) => renderZone(zone))}
           </motion.div>
         </motion.div>
-        <DragOverlay adjustScale={false} dropAnimation={null}>
-          {draggingCard ? (
-            <CardView
-              card={draggingCard}
-              cardSize={cardSize}
-              overlay
-              draggable={false}
-              style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.5)' }}
-            />
-          ) : null}
-        </DragOverlay>
+        {handZones.map((zone) => {
+          const zoneCards = zone.cards
+            .map((id) => cards[id])
+            .filter((card): card is CardModel => Boolean(card));
+          return (
+            <Hand key={zone.id} zone={zone} cards={zoneCards} cardSize={cardSize} onFlipCard={flipCard} />
+          );
+        })}
       </DndContext>
     </div>
   );

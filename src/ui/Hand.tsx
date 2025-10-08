@@ -21,6 +21,7 @@ export const Hand = ({ zone, cards, cardSize, onFlipCard }: HandProps) => {
 
   const spread = Math.min(18, Math.max(8, 32 - cards.length));
   const fanOrigin = (cards.length - 1) / 2;
+  const handMaxWidth = `${zone.size.width}px`;
 
   return (
     <motion.div
@@ -28,11 +29,14 @@ export const Hand = ({ zone, cards, cardSize, onFlipCard }: HandProps) => {
       layout
       className="hand-zone"
       style={{
-        position: 'absolute',
-        left: zone.position.x,
-        top: zone.position.y,
-        width: zone.size.width,
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 32,
+        width: 'calc(100% - 64px)',
+        maxWidth: handMaxWidth,
         height: zone.size.height,
+        margin: '0 auto',
         borderRadius: 24,
         border: `2px dashed ${isOver ? '#5af5c6' : 'rgba(255,255,255,0.08)'}`,
         background: 'linear-gradient(180deg, rgba(17, 28, 41, 0.85), rgba(10, 15, 24, 0.9))',
@@ -41,14 +45,15 @@ export const Hand = ({ zone, cards, cardSize, onFlipCard }: HandProps) => {
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        overflow: 'visible'
+        overflow: 'visible',
+        zIndex: 30
       }}
     >
       <div
         style={{
           position: 'absolute',
           top: 16,
-          left: 28,
+          left: 32,
           fontSize: 14,
           fontWeight: 600,
           letterSpacing: 0.5,
@@ -79,6 +84,7 @@ export const Hand = ({ zone, cards, cardSize, onFlipCard }: HandProps) => {
               card={card}
               cardSize={cardSize}
               style={{}}
+              dragScale={1}
               onFlip={onFlipCard}
             />
           </motion.div>

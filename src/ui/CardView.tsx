@@ -17,6 +17,7 @@ export interface CardViewProps {
   className?: string;
   style?: CSSProperties;
   onFlip?: (cardId: string) => void;
+  dragScale?: number;
 }
 
 const cardShadow = '0 10px 30px rgba(0, 0, 0, 0.35)';
@@ -28,7 +29,8 @@ export const CardView = ({
   overlay = false,
   className,
   style,
-  onFlip
+  onFlip,
+  dragScale = 1
 }: CardViewProps) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: card.id,
@@ -45,10 +47,11 @@ export const CardView = ({
       return undefined;
     }
     const { x, y } = transform;
+    const scaleFactor = dragScale || 1;
     return {
-      transform: `translate3d(${x}px, ${y}px, 0)`
+      transform: `translate3d(${x / scaleFactor}px, ${y / scaleFactor}px, 0)`
     } satisfies CSSProperties;
-  }, [transform]);
+  }, [dragScale, transform]);
 
   const mergedStyle: CSSProperties = {
     width: cardSize.width,
