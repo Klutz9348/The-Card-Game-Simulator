@@ -1,0 +1,50 @@
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+}
+
+.app {
+  text-align: center;
+  padding: 2rem;
+}
+
+.app__logos {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.app__logo {
+  height: 6rem;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.app__logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.app__logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.app__tagline {
+  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+}
