@@ -1,0 +1,18 @@
+{
+  "name": "the-card-game-simulator",
+  "version": "1.0.0",
+  "description": "Core engine components for a card game simulator",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"dist/tests/**/*.js\""
+  },
+  "keywords": [
+    "card-game",
+    "simulator",
+    "engine"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
