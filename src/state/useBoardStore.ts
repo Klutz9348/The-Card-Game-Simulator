@@ -19,6 +19,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
   draggingCardId: null,
   hoveringZoneId: null,
   snapPreview: null,
+  recentlyMovedCardId: null,
   actions: {
     upsertZones: (zones: ZoneModel[]) => {
       set((state) => {
@@ -96,13 +97,27 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
           };
         }
 
-        return {
+        const clearHighlight = () => {
+          set((current) => {
+            if (current.recentlyMovedCardId !== cardId) {
+              return undefined;
+            }
+            return { recentlyMovedCardId: null };
+          });
+        };
+
+        const nextState = {
           cards: updatedCards,
           zones,
           draggingCardId: null,
           hoveringZoneId: null,
-          snapPreview: null
+          snapPreview: null,
+          recentlyMovedCardId: cardId
         };
+
+        setTimeout(clearHighlight, 350);
+
+        return nextState;
       });
     },
     flipCard: (cardId: string) => {
@@ -130,6 +145,14 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     },
     setSnapPreview: (preview: SnapPreview | null) => {
       set({ snapPreview: preview });
+    },
+    clearRecentlyMovedCard: () => {
+      set((state) => {
+        if (!state.recentlyMovedCardId) {
+          return undefined;
+        }
+        return { recentlyMovedCardId: null };
+      });
     },
     ensureExampleState: (seed) => {
       const { zones } = get();

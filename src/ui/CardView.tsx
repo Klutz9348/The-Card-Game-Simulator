@@ -3,6 +3,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import type { CardModel } from '../state/types';
+import { useBoardStore } from '../state/useBoardStore';
 
 export interface CardSize {
   width: number;
@@ -30,6 +31,7 @@ export const CardView = ({
   style,
   onFlip
 }: CardViewProps) => {
+  const recentlyMovedCardId = useBoardStore((state) => state.recentlyMovedCardId);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: card.id,
     disabled: !draggable || overlay,
@@ -50,6 +52,11 @@ export const CardView = ({
     } satisfies CSSProperties;
   }, [transform]);
 
+  const isRecentlyMoved = !overlay && recentlyMovedCardId === card.id;
+  const baseShadow = card.faceUp ? cardShadow : 'none';
+  const highlightShadow = '0 0 0 3px rgba(90, 245, 198, 0.6), 0 14px 32px rgba(0, 0, 0, 0.45)';
+  const effectiveShadow = isRecentlyMoved ? highlightShadow : baseShadow;
+
   const mergedStyle: CSSProperties = {
     width: cardSize.width,
     height: cardSize.height,
@@ -57,7 +64,10 @@ export const CardView = ({
     position: 'relative',
     transformStyle: 'preserve-3d',
     cursor: draggable ? (isDragging ? 'grabbing' : 'grab') : 'default',
-    boxShadow: card.faceUp ? cardShadow : 'none',
+    boxShadow: effectiveShadow,
+    opacity: isDragging ? 0 : 1,
+    filter: isRecentlyMoved ? 'brightness(1.08)' : 'none',
+    transition: 'box-shadow 0.25s ease, filter 0.25s ease',
     ...style,
     ...(dragStyle ?? {})
   };
@@ -68,6 +78,7 @@ export const CardView = ({
       className={className}
       layout
       layoutId={card.id}
+      data-card-interactive={overlay ? undefined : 'true'}
       style={mergedStyle}
       onDoubleClick={() => onFlip?.(card.id)}
       {...listeners}

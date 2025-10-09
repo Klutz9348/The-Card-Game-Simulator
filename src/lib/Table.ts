@@ -5,7 +5,7 @@ export interface SnapOptions {
 }
 
 export const snap = (position: Vector2, options: SnapOptions = {}): Vector2 => {
-  const gridSize = options.gridSize ?? 40;
+  const gridSize = options.gridSize ?? 16;
   return {
     x: Math.round(position.x / gridSize) * gridSize,
     y: Math.round(position.y / gridSize) * gridSize

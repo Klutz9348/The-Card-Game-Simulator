@@ -26,11 +26,12 @@ const defaultBackground =
 
 export const Board = ({
   cardSize = { width: 120, height: 168 },
-  gridSize = 40,
+  gridSize = 16,
   background = defaultBackground
 }: BoardProps) => {
   const zones = useBoardStore((state) => state.zones);
   const cards = useBoardStore((state) => state.cards);
+  const draggingCardId = useBoardStore((state) => state.draggingCardId);
   const { setDraggingCard, setHoveringZone, moveCard, flipCard } = useBoardStore(
     (state) => state.actions
   );
@@ -166,11 +167,26 @@ export const Board = ({
   }, []);
 
   const handlePointerDown: React.PointerEventHandler<HTMLDivElement> = useCallback((event) => {
-    if (event.button === 1 || event.button === 2 || event.shiftKey) {
-      setIsPanning(true);
-      lastPointerPosition.current = { x: event.clientX, y: event.clientY };
-      event.currentTarget.setPointerCapture(event.pointerId);
+    const target = event.target;
+    const targetElement = target instanceof HTMLElement ? target : null;
+    const isCardInteraction = targetElement?.closest('[data-card-interactive="true"]');
+
+    if (isCardInteraction) {
+      return;
     }
+
+    const isPrimaryButton = event.button === 0;
+    const isAuxiliaryButton = event.button === 1 || event.button === 2;
+    const shouldPan = isPrimaryButton || isAuxiliaryButton || event.shiftKey;
+
+    if (!shouldPan) {
+      return;
+    }
+
+    setIsPanning(true);
+    lastPointerPosition.current = { x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
   }, []);
 
   const handlePointerMove: React.PointerEventHandler<HTMLDivElement> = useCallback(
@@ -262,6 +278,8 @@ export const Board = ({
     },
     [cardSize, cards, flipCard, scale]
   );
+
+  const draggingCard = draggingCardId ? cards[draggingCardId] : null;
 
   return (
     <div
@@ -355,6 +373,17 @@ export const Board = ({
             <Hand key={zone.id} zone={zone} cards={zoneCards} cardSize={cardSize} onFlipCard={flipCard} />
           );
         })}
+        <DragOverlay dropAnimation={null}>
+          {draggingCard ? (
+            <CardView
+              card={draggingCard}
+              cardSize={cardSize}
+              draggable={false}
+              overlay
+              style={{ pointerEvents: 'none' }}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );

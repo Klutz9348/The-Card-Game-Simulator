@@ -43,6 +43,7 @@ export interface BoardStoreState {
   draggingCardId: string | null;
   hoveringZoneId: string | null;
   snapPreview: SnapPreview | null;
+  recentlyMovedCardId: string | null;
   actions: BoardStoreActions;
 }
 
@@ -54,5 +55,6 @@ export interface BoardStoreActions {
   setDraggingCard: (cardId: string | null) => void;
   setHoveringZone: (zoneId: string | null) => void;
   setSnapPreview: (preview: SnapPreview | null) => void;
+  clearRecentlyMovedCard: () => void;
   ensureExampleState: (seed: () => { zones: ZoneModel[]; cards: CardModel[] }) => void;
 }
