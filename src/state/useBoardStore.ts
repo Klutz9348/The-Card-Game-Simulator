@@ -39,7 +39,11 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
         const zones = { ...state.zones };
         const nextCards = { ...state.cards };
         cards.forEach((card) => {
-          nextCards[card.id] = card;
+          const normalizedCard: CardModel = {
+            ...card,
+            rotation: typeof card.rotation === 'number' ? card.rotation : 0
+          };
+          nextCards[card.id] = normalizedCard;
           const zone = zones[card.zoneId];
           if (zone) {
             if (!zone.cards.includes(card.id)) {
@@ -118,6 +122,23 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
         setTimeout(clearHighlight, 350);
 
         return nextState;
+      });
+    },
+    rotateCard: (cardId: string, rotation: number) => {
+      set((state) => {
+        const card = state.cards[cardId];
+        if (!card) {
+          return state;
+        }
+        return {
+          cards: {
+            ...state.cards,
+            [cardId]: {
+              ...card,
+              rotation
+            }
+          }
+        };
       });
     },
     flipCard: (cardId: string) => {

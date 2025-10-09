@@ -42,6 +42,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
       faceUp: true,
       zoneId: tableZone.id,
       position: { x: 220, y: 160 },
+      rotation: 0,
       metadata: { cost: 2, attack: 3 }
     },
     {
@@ -51,6 +52,7 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
       faceUp: false,
       zoneId: tableZone.id,
       position: { x: 480, y: 360 },
+      rotation: 0,
       metadata: { attack: 4, defense: 6 }
     },
     {
@@ -59,7 +61,8 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
       description: 'Prevent the next 3 damage to you.',
       faceUp: true,
       zoneId: handZone.id,
-      position: { x: 0, y: 0 }
+      position: { x: 0, y: 0 },
+      rotation: 0
     },
     {
       id: 'card-4',
@@ -67,7 +70,8 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
       description: 'Deal 4 damage to an enemy creature.',
       faceUp: true,
       zoneId: handZone.id,
-      position: { x: 0, y: 0 }
+      position: { x: 0, y: 0 },
+      rotation: 0
     },
     {
       id: 'card-5',
@@ -75,7 +79,8 @@ export const seedExampleState = (): { zones: ZoneModel[]; cards: CardModel[] } =
       description: 'Summon a 2/2 creature token.',
       faceUp: true,
       zoneId: handZone.id,
-      position: { x: 0, y: 0 }
+      position: { x: 0, y: 0 },
+      rotation: 0
     }
   ];
 

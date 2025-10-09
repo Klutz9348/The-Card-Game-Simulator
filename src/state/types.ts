@@ -11,6 +11,7 @@ export interface CardModel {
   faceUp: boolean;
   zoneId: string;
   position: Vector2;
+  rotation: number;
   metadata?: Record<string, unknown>;
 }
 
@@ -51,6 +52,7 @@ export interface BoardStoreActions {
   upsertZones: (zones: ZoneModel[]) => void;
   upsertCards: (cards: CardModel[]) => void;
   moveCard: (cardId: string, zoneId: string, position: Vector2) => void;
+  rotateCard: (cardId: string, rotation: number) => void;
   flipCard: (cardId: string) => void;
   setDraggingCard: (cardId: string | null) => void;
   setHoveringZone: (zoneId: string | null) => void;
