@@ -104,7 +104,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
         const clearHighlight = () => {
           set((current) => {
             if (current.recentlyMovedCardId !== cardId) {
-              return undefined;
+              return current;
             }
             return { recentlyMovedCardId: null };
           });
@@ -170,7 +170,7 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     clearRecentlyMovedCard: () => {
       set((state) => {
         if (!state.recentlyMovedCardId) {
-          return undefined;
+          return state;
         }
         return { recentlyMovedCardId: null };
       });

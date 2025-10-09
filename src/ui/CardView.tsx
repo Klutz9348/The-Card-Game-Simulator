@@ -91,7 +91,7 @@ export const CardView = ({
   }, [transform]);
 
   const isRecentlyMoved = !overlay && recentlyMovedCardId === card.id;
-  const effectiveShadow = card.faceUp ? cardShadow : 'none';
+  const effectiveShadow = card.faceUp ? cardShadow : null;
 
   const mergedStyle: CSSProperties = {
     width: cardSize.width,
@@ -100,10 +100,9 @@ export const CardView = ({
     position: 'relative',
     transformStyle: 'preserve-3d',
     cursor: isRotating ? 'grabbing' : draggable ? (isDragging ? 'grabbing' : 'grab') : 'default',
-    boxShadow: effectiveShadow,
     opacity: isDragging ? 0 : 1,
     filter: isRecentlyMoved ? 'brightness(1.08)' : 'none',
-    transition: 'box-shadow 0.25s ease, filter 0.25s ease',
+    transition: 'filter 0.25s ease',
     ...style,
     ...(transformStyle ?? {})
   };
@@ -212,9 +211,15 @@ export const CardView = ({
       borderRadius: 12,
       boxSizing: 'border-box',
       border: isRecentlyMoved ? '3px solid rgba(90, 245, 198, 0.6)' : '3px solid transparent',
-      boxShadow: isRecentlyMoved ? '0 0 0 4px rgba(90, 245, 198, 0.25)' : undefined
+      boxShadow: [
+        effectiveShadow,
+        isRecentlyMoved ? '0 0 0 4px rgba(90, 245, 198, 0.25)' : null
+      ]
+        .filter(Boolean)
+        .join(', ') || undefined,
+      transition: 'box-shadow 0.25s ease'
     }),
-    [isRecentlyMoved, rotationDegrees]
+    [effectiveShadow, isRecentlyMoved, rotationDegrees]
   );
 
   return (
